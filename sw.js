@@ -1,6 +1,6 @@
 // オフラインでも使えるようにファイルをキャッシュする。
 // ファイルを更新したら VERSION を上げること。
-const VERSION = 'vn5-v1';
+const VERSION = 'vn5-v2';
 const FILES = [
   './',
   'index.html',
