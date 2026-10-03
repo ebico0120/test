@@ -468,6 +468,8 @@ function commit(item, correct) {
 
 function answer(card, item, correct, { note, showAnswer = true } = {}) {
   commit(item, correct);
+  const s = session;
+  card.querySelector('.parts-hint')?.remove();
   card.querySelectorAll('.choices button, .tile').forEach(b => { b.disabled = true; });
 
   const vi = item.kind === 'dialog' ? item.ans : item.vi;
@@ -478,6 +480,7 @@ function answer(card, item, correct, { note, showAnswer = true } = {}) {
       h('span', { class: 'vi', lang: 'vi' }, vi), speakerBtn(vi)) : null,
     showAnswer ? h('p', { class: 'ja' }, ja) : null,
     note ? h('p', { class: 'note' }, note) : null,
+    ['vi2ja', 'spell'].includes(s.queue[s.idx].type) ? partsBlock(item) : null,
     h('button', { type: 'button', class: 'primary', onclick: next }, '次へ ▶'),
   );
   card.append(fb);
@@ -488,6 +491,38 @@ function answer(card, item, correct, { note, showAnswer = true } = {}) {
 function next() {
   session.idx++;
   render();
+}
+
+/* ---------- 語の成り立ち（複合語を音節に分けて解説） ---------- */
+
+function partsOf(item) {
+  const p = item.kind === 'word' && window.VN_PARTS && VN_PARTS[item.vi];
+  return p && p.length ? p : null;
+}
+
+// mask=true のときは音節のつづりを隠し、答えのヒントになる補足メモも出さない
+function partsBlock(item, { mask = false } = {}) {
+  const parts = partsOf(item);
+  if (!parts) return null;
+  const rows = parts.filter(Array.isArray);
+  const note = mask ? null : parts.find(x => typeof x === 'string');
+  return h('div', { class: 'parts' },
+    h('p', { class: 'parts-title' }, '💡 語の成り立ち'),
+    rows.length ? h('div', { class: 'parts-list' }, rows.map(([syl, han, mean], i) =>
+      h('div', { class: 'part' },
+        h('span', { class: 'part-syl', lang: 'vi' }, mask ? `${i + 1}語目` : syl),
+        h('span', { class: `part-han${han ? '' : ' none'}`, 'aria-label': han ? '元の漢字' : '漢字なし' }, han || '—'),
+        h('span', { class: 'part-mean' }, mean)))) : null,
+    note ? h('p', { class: 'parts-note' }, note) : null);
+}
+
+// 解説があるときだけ「見る」ボタンを出す
+function partsHint(card, item, mask) {
+  if (!partsOf(item)) return;
+  const box = h('div', { class: 'parts-hint' });
+  box.append(h('button', { type: 'button', class: 'link-btn',
+    onclick: () => box.replaceChildren(partsBlock(item, { mask })) }, '💡 語の成り立ちを見る'));
+  card.append(box);
 }
 
 /* ---------- 各形式の画面 ---------- */
@@ -528,6 +563,7 @@ const RENDERERS = {
     card.append(h('div', { class: 'prompt' },
       h('span', { class: 'vi big-text', lang: 'vi' }, item.vi), speakerBtn(item.vi)));
     play(item.vi, { auto: true });
+    partsHint(card, item, false);
     const opts = shuffle([{ label: item.ja, correct: true },
       ...distractors(item, 'ja').map(d => ({ label: d.ja }))]);
     choiceList(card, opts, o => { answer(card, item, !!o.correct); return !!o.correct; });
@@ -579,6 +615,7 @@ const RENDERERS = {
     if (syllables.length > 1) {
       card.append(h('p', { class: 'hint' }, `${syllables.length}語（文字数 ${syllables.map(w => [...w].length).join(' + ')}）`));
     }
+    partsHint(card, item, true);
     tileQuiz(card, item, target, shuffle([...target, ...extras]), '');
   },
 

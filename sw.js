@@ -1,11 +1,12 @@
 // オフラインでも使えるようにファイルをキャッシュする。
 // ファイルを更新したら VERSION を上げること。
-const VERSION = 'vn5-v2';
+const VERSION = 'vn5-v3';
 const FILES = [
   './',
   'index.html',
   'css/style.css',
   'js/data.js',
+  'js/parts.js',
   'js/app.js',
   'manifest.webmanifest',
   'icon.svg',

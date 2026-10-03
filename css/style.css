@@ -264,3 +264,20 @@ main { max-width: 640px; margin: 0 auto; padding: 12px 16px 48px; }
 .settings .seg { flex-wrap: wrap; border-radius: 14px; }
 .settings .seg button { border-radius: 12px; }
 .back { display: inline-block; margin-top: 20px; }
+
+/* 語の成り立ち */
+.parts-hint { text-align: center; margin: -4px 0 8px; }
+.parts {
+  background: var(--surface-2); border-radius: 12px; padding: 10px 12px; margin: 10px 0 4px; text-align: left;
+}
+.parts-title { margin: 0 0 6px; font-size: .85rem; font-weight: 600; color: var(--muted); }
+.part {
+  display: grid; grid-template-columns: minmax(4.5em, auto) 2.2em 1fr; gap: 10px; align-items: baseline;
+  padding: 4px 0; border-top: 1px solid var(--border);
+}
+.part:first-child { border-top: 0; }
+.part-syl { font-weight: 700; }
+.part-han { font-size: 1.4rem; font-weight: 700; text-align: center; line-height: 1.2; }
+.part-han.none { color: var(--muted); font-size: 1rem; font-weight: 400; }
+.part-mean { font-size: .92rem; overflow-wrap: anywhere; }
+.parts-note { margin: 6px 0 0; font-size: .85rem; color: var(--muted); }
